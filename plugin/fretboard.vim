@@ -4,4 +4,5 @@ endif
 
 let g:loaded_fretboard = 1
 
-command! FretBoard call fretboard#show_all()
+command! -nargs=1 FretBoardShow call fretboard#show(<f-args>)
+command! -nargs=* FretBoardScale call fretboard#scale(<f-args>)

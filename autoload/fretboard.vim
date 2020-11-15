@@ -1,49 +1,105 @@
-let s:fretboard_default = {
-      \ '1': 'G || _ | A | _ | B | C | _ | D | _ | E | F | _ | G | _ | A | _ | B | C | _ | D | _ | E | F | ',
-      \ '2': 'D || _ | E | F | _ | G | _ | A | _ | B | C | _ | D | _ | E | F | _ | G | _ | A | _ | B | C | ',
-      \ '3': 'A || _ | B | C | _ | D | _ | E | F | _ | G | _ | A | _ | B | C | _ | D | _ | E | F | _ | G | ',
-      \ '4': 'E || F | _ | G | _ | A | _ | B | C | _ | D | _ | E | F | _ | G | _ | A | _ | B | C | _ | D | '
+let s:chromatic_scales = {
+      \ 'C': ['C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B'],
+      \ 'C#/Db': ['C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B', 'C'],
+      \ 'D': ['D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B', 'C', 'C#/Db'],
+      \ 'D#/Eb': ['D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D'],
+      \ 'E': ['E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb'],
+      \ 'F': ['F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E'],
+      \ 'F#/Gb': ['F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F'],
+      \ 'G': ['G', 'G#/Ab', 'A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb'],
+      \ 'G#/Ab': ['G#/Ab', 'A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G'],
+      \ 'A': ['A', 'A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab'],
+      \ 'A#/Bb': ['A#/Bb', 'B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A'],
+      \ 'B': ['B', 'C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb']
       \ }
-
-let s:guitar_fretboard_origin = {
-      \ '1': ['E', 'F', '_', 'G', '_', 'A', '_', 'B', 'C', '_', 'D', '_', 'E', ],
-      \ '2': ['B', 'C', '_', 'D', '_', 'E', 'F', '_', 'G', '_', 'A', '_', 'B', ],
-      \ '3': ['G', '_', 'A', '_', 'B', 'C', '_', 'D', '_', 'E', 'F', '_', 'G', ],
-      \ '4': ['D', '_', 'E', 'F', '_', 'G', '_', 'A', '_', 'B', 'C', '_', 'D', ],
-      \ '5': ['A', '_', 'B', 'C', '_', 'D', '_', 'E', 'F', '_', 'G', '_', 'A', ],
-      \ '6': ['E', 'F', '_', 'G', '_', 'A', '_', 'B', 'C', '_', 'D', '_', 'E', ]
+let s:scale_indexs = {
+      \ 'chromatic': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      \ 'major': [0, 2, 4, 5, 7, 9, 11],
+      \ 'minor': [0, 2, 3, 5, 7, 8, 10],
+      \ 'major_pentatonic': [0, 2, 4, 7, 9],
+      \ 'minor_pentatonic': [0, 2, 3, 7, 8],
       \ }
+let s:lowest_sounds= {
+      \ 'guitar' : {
+      \ '1': 'E',
+      \ '2': 'B',
+      \ '3': 'G',
+      \ '4': 'D',
+      \ '5': 'A',
+      \ '6': 'E'
+      \ },
+      \ 'bass' : {
+      \ '1': 'G',
+      \ '2': 'D',
+      \ '3': 'A',
+      \ '4': 'E'
+      \ },
+      \ }
+let s:fretnumber_count = 20
 
-function! s:show_fretboard(fretboard) abort
-  call s:echo_edge()
-  for key in keys(a:fretboard)
-    echo a:fretboard[key]
+let s:single_char_sounds = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+
+function! fretboard#scale(instrument, scale, root) abort
+  let scale_sounds = []
+  for index in s:scale_indexs[a:scale]
+    let scale_sounds = add(scale_sounds, s:chromatic_scales[a:root][index])
   endfor
-  call s:echo_edge()
-  call s:echo_position_mark()
-endfunction
-
-function! s:show(fretboard) abort
-  call s:echo_edge()
-  for key in keys(a:fretboard)
-    let str = ''
-    for note in a:fretboard[key]
-      let str = str . note
+  for n in keys(s:lowest_sounds[a:instrument])
+    let lowest_sound = s:lowest_sounds[a:instrument][n]
+    let sound_sequence = '|'
+    for i in range(s:fretnumber_count)
+      let mod = i % 12
+      let sound = s:chromatic_scales[lowest_sound][mod]
+      if index(s:single_char_sounds, sound) > -1
+        if index(scale_sounds, sound) > -1
+          let sound_sequence = sound_sequence . '   ' . sound . '   ' . '|'
+        else
+          let sound_sequence = sound_sequence . '   ' . ' ' . '   ' . '|'
+        endif
+      else
+        if index(scale_sounds, sound) > -1
+          let sound_sequence = sound_sequence . ' ' . sound . ' ' . '|'
+        else
+          let sound_sequence = sound_sequence . ' ' . '     ' . ' ' . '|'
+        endif
+      endif
     endfor
-    echo str
+    echo sound_sequence
   endfor
-  call s:echo_edge()
-  call s:echo_position_mark()
+  call s:fretnumber()
 endfunction
 
-function! s:echo_edge() abort
-  echo "  ============================================================================================"
+function! fretboard#show(instrument) abort
+  for n in keys(s:lowest_sounds[a:instrument])
+    let lowest_sound = s:lowest_sounds[a:instrument][n]
+    let sound_sequence = '|'
+    for i in range(s:fretnumber_count)
+      let mod = i % 12
+      let sound = s:chromatic_scales[lowest_sound][mod]
+      if index(s:single_char_sounds, sound) > -1
+        let sound_sequence = sound_sequence . '   ' . sound . '   ' . '|'
+      else
+        let sound_sequence = sound_sequence . ' ' . sound . ' ' . '|'
+      endif
+    endfor
+    echo sound_sequence
+  endfor
+  call s:fretnumber()
 endfunction
 
-function! s:echo_position_mark() abort
-  echo "             x       x       x       x          xxx          x       x       x       x "
-endfunction
-
-function! fretboard#show_all() abort
-  call s:show_fretboard(s:fretboard_default)
+function! s:fretnumber() abort
+  let edge = '|'
+  for i in range(s:fretnumber_count)
+    let edge = edge . '========'
+  endfor
+  echo edge
+  let fretnumber_sequence = '|'
+  for i in range(s:fretnumber_count)
+    if i < 10
+      let fretnumber_sequence = fretnumber_sequence . '   ' . i . '   ' . '|'
+    else
+      let fretnumber_sequence = fretnumber_sequence . '   ' . i . '  ' . '|'
+    endif
+  endfor
+  echo fretnumber_sequence
 endfunction
