@@ -21,6 +21,6 @@ Show all sounds on a scale. major, minor , major_pentatonic and minor_pentatonic
 ```
 :FretboardShow guitar major C#/Db
 :FretboardShow guitar minor G
-:FretboardShow bass pentatonic C
+:FretboardShow bass major_pentatonic A
 ```
 
